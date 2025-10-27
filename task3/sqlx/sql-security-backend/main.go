@@ -10,29 +10,26 @@ import (
 
 func main() {
 	// 初始化数据库连接
-	db := database.InitDB(&models.Employee{})
+	db := database.InitDB(&models.Book{})
+
+	// 示例：插入测试数据（可选，用于验证查询）
+	testBooks := []models.Book{
+		{Title: "Go 编程实战", Author: "张三", Price: 69.90},
+		{Title: "Python 入门", Author: "李四", Price: 45.50},
+		{Title: "Java 高级开发", Author: "王五", Price: 89.00},
+	}
+	db.Create(&testBooks) // 批量插入测试数据
 
 	svc := services.New(db)
 
-	// db.Create(&models.Employee{ID: 1, Name: "张三", Department: "开发部", Salary: 100})
-	// db.Create(&models.Employee{ID: 2, Name: "李四", Department: "技术部", Salary: 200})
-
-	// 测试查询技术部员工
-	techEmps, err := svc.GetTechEmployeesByDepartment("技术部")
+	// 执行查询：价格大于 50 元的书籍
+	expensiveBooks, err := svc.GetBooksPriceGreaterThan50()
 	if err != nil {
 		log.Println(err)
 	} else {
-		fmt.Println("技术部员工列表：")
-		for _, e := range techEmps {
-			fmt.Printf("ID: %d, 姓名: %s, 部门: %s, 工资: %d\n", e.ID, e.Name, e.Department, e.Salary)
+		fmt.Println("价格大于 50列表：")
+		for _, e := range expensiveBooks {
+			fmt.Printf("ID: %d, 姓名: %s, 部门: %s, 工资: %d\n", e.ID, e.Title, e.Author, e.Price)
 		}
 	}
-	// 测试查询工资最高的员工
-	topEmp, err := svc.GetTopSalaryEmployee(db)
-	if err != nil {
-		log.Println(err)
-	} else {
-		fmt.Printf("\n工资最高的员工：\nID: %d, 姓名: %s, 部门: %s, 工资: %d\n", topEmp.ID, topEmp.Name, topEmp.Department, topEmp.Salary)
-	}
-
 }
