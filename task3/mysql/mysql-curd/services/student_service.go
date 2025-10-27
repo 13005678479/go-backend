@@ -45,8 +45,7 @@ func (s *Service) DeleteByAgeLessThan(age int) error {
 
 	fmt.Println("将要删除的学生记录:")
 	for _, student := range studentsToDelete {
-		fmt.Printf("  ID: %d 姓名: %s 年龄: %d 年级: %s\n",
-			student.ID, student.Name, student.Age, student.Grade)
+		fmt.Printf("  ID: %d 姓名: %s 年龄: %d 年级: %s\n", student.ID, student.Name, student.Age, student.Grade)
 	}
 
 	// 执行删除操作
