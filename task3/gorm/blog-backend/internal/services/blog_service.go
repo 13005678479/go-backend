@@ -51,7 +51,7 @@ func (p *models.Post) BeforeCreate(tx *gorm.DB) error {
 // AfterCreate Comment创建后钩子：更新文章评论数量和状态
 func (c *models.Comment) AfterCreate(tx *gorm.DB) error {
 	// 自增文章的评论数量
-	if err := tx.Model(&Post{}).Where("id = ?", c.PostID).
+	if err := tx.Model(&models.Post{}).Where("id = ?", c.PostID).
 		Updates(map[string]interface{}{
 			"comment_count":  gorm.Expr("comment_count + ?", 1),
 			"comment_status": "有评论",
@@ -62,9 +62,9 @@ func (c *models.Comment) AfterCreate(tx *gorm.DB) error {
 }
 
 // AfterDelete Comment删除后钩子：检查文章评论状态
-func (c *Comment) AfterDelete(tx *gorm.DB) error {
+func (c *models.Comment) AfterDelete(tx *gorm.DB) error {
 	// 先查询当前文章的评论数量
-	var post Post
+	var post models.Post
 	if err := tx.First(&post, c.PostID).Error; err != nil {
 		return err
 	}
@@ -78,5 +78,5 @@ func (c *Comment) AfterDelete(tx *gorm.DB) error {
 		updateData["comment_status"] = "无评论"
 	}
 
-	return tx.Model(&Post{}).Where("id = ?", c.PostID).Updates(updateData).Error
+	return tx.Model(&models.Post{}).Where("id = ?", c.PostID).Updates(updateData).Error
 }
