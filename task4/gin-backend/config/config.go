@@ -33,6 +33,15 @@ type JWTConfig struct {
 	Expire int
 }
 
+// LogConfig 日志配置结构体
+type LogConfig struct {
+	LogLevel    string
+	LogFilePath string
+	MaxFileSize int64
+	MaxBackups  int
+	MaxAge      int
+}
+
 // LoadConfig 加载配置
 func LoadConfig() *Config {
 	return &Config{
@@ -51,6 +60,23 @@ func LoadConfig() *Config {
 			Secret: getEnv("JWT_SECRET", "yn98cryb98y4bcr9n2u49crnu43x9cru"),
 			Expire: getEnvAsInt("JWT_EXPIRE", 24),
 		},
+	}
+}
+
+// GetLogConfig 获取日志配置
+func GetLogConfig() *LogConfig {
+	logLevel := getEnv("LOG_LEVEL", "INFO")
+	logFilePath := getEnv("LOG_FILE_PATH", "app.log")
+	maxFileSize, _ := strconv.ParseInt(getEnv("LOG_MAX_FILE_SIZE", "10485760"), 10, 64) // 10MB
+	maxBackups, _ := strconv.Atoi(getEnv("LOG_MAX_BACKUPS", "5"))
+	maxAge, _ := strconv.Atoi(getEnv("LOG_MAX_AGE", "30"))
+
+	return &LogConfig{
+		LogLevel:    logLevel,
+		LogFilePath: logFilePath,
+		MaxFileSize: maxFileSize,
+		MaxBackups:  maxBackups,
+		MaxAge:      maxAge,
 	}
 }
 
