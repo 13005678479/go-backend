@@ -39,6 +39,9 @@ func main() {
 	// 根据模型定义自动创建或更新数据库表
 	database.AutoMigrate(db)
 
+	// 初始化测试数据
+	database.SeedData(db)
+
 	// 创建独立的服务层实例
 	// 每个服务负责特定的业务领域
 	userService := services.NewUserService(db)       // 用户服务，处理用户相关业务
