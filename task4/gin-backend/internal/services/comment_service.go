@@ -2,7 +2,6 @@ package services
 
 import (
 	"blogV2/internal/models"
-	"blogV2/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -70,4 +69,14 @@ func (s *CommentService) GetCommentCountByPostID(postID uint) (int64, error) {
 		return 0, result.Error
 	}
 	return count, nil
+}
+
+// GetPostByID 根据ID获取文章（用于验证文章是否存在）
+func (s *CommentService) GetPostByID(id uint) (*models.Post, error) {
+	var post models.Post
+	result := s.db.First(&post, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &post, nil
 }

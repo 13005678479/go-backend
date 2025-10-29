@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type PostController struct {
@@ -184,4 +185,33 @@ func (c *PostController) DeletePost(ctx *gin.Context) {
 
 	utils.Info("文章删除成功 (ID: " + postIDStr + ")")
 	ctx.JSON(http.StatusOK, gin.H{"message": "文章删除成功"})
+}
+
+// ListPosts 获取所有文章列表
+func (c *PostController) ListPosts(ctx *gin.Context) {
+	posts, err := c.service.ListAllPosts()
+	if err != nil {
+		utils.Error("获取文章列表失败: " + err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取文章列表失败"})
+		return
+	}
+
+	// 格式化返回数据
+	var result []gin.H
+	for _, post := range posts {
+		result = append(result, gin.H{
+			"id":         post.ID,
+			"title":      post.Title,
+			"content":    post.Content,
+			"user_id":    post.UserID,
+			"username":   post.User.Username,
+			"created_at": post.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": post.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"total": len(result),
+		"posts": result,
+	})
 }

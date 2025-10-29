@@ -2,7 +2,6 @@ package services
 
 import (
 	"blogV2/internal/models"
-	"blogV2/pkg/utils"
 
 	"gorm.io/gorm"
 )
