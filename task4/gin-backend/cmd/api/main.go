@@ -42,6 +42,7 @@ func main() {
 
 	// 启动服务器
 	utils.Info("服务器启动在端口: %s", cfg.Server.Port)
+	utils.Info("Swagger 文档地址: http://localhost:%s/swagger/index.html", cfg.Server.Port)
 	if err := r.Run(":" + cfg.Server.Port); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
 	}

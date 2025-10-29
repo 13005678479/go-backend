@@ -11,6 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// CommentController 评论控制器
+// @Summary 评论管理接口
+// @Description 提供评论的创建、查询、删除等操作
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Router /api/v1/comments [get]
+
 type CommentController struct {
 	service *services.CommentService
 }
@@ -20,6 +28,19 @@ func NewCommentController(service *services.CommentService) *CommentController {
 }
 
 // CreateComment 创建评论
+// @Summary 创建评论
+// @Description 为指定文章创建评论
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "文章ID"
+// @Param request body CreateCommentRequest true "评论内容"
+// @Success 201 {object} map[string]interface{} "评论创建成功"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 404 {object} map[string]interface{} "文章不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts/{id}/comments [post]
 type CreateCommentRequest struct {
 	Content string `json:"content" binding:"required,min=1,max=500"`
 }
@@ -76,6 +97,17 @@ func (c *CommentController) CreateComment(ctx *gin.Context) {
 }
 
 // ListComments 获取文章的所有评论
+// @Summary 获取文章评论列表
+// @Description 获取指定文章的所有评论
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Param id path int true "文章ID"
+// @Success 200 {object} map[string]interface{} "评论列表"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 404 {object} map[string]interface{} "文章不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts/{id}/comments [get]
 func (c *CommentController) ListComments(ctx *gin.Context) {
 	postIDStr := ctx.Param("id")
 	postID, err := strconv.Atoi(postIDStr)
@@ -124,6 +156,19 @@ func (c *CommentController) ListComments(ctx *gin.Context) {
 }
 
 // DeleteComment 删除评论（仅评论作者可删除）
+// @Summary 删除评论
+// @Description 删除指定评论（仅评论作者可操作）
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "评论ID"
+// @Success 200 {object} map[string]interface{} "删除成功"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 403 {object} map[string]interface{} "无权操作"
+// @Failure 404 {object} map[string]interface{} "评论不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/comments/{id} [delete]
 func (c *CommentController) DeleteComment(ctx *gin.Context) {
 	userID, _ := ctx.Get("userID")
 	commentIDStr := ctx.Param("id")

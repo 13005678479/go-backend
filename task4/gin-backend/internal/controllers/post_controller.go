@@ -11,6 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// PostController 文章控制器
+// @Summary 文章管理接口
+// @Description 提供文章的创建、查询、更新、删除等操作
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Router /api/v1/posts [get]
+
 type PostController struct {
 	service *services.PostService
 }
@@ -20,6 +28,17 @@ func NewPostController(service *services.PostService) *PostController {
 }
 
 // CreatePost 创建文章
+// @Summary 创建文章
+// @Description 创建新的文章
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body CreatePostRequest true "文章信息"
+// @Success 201 {object} map[string]interface{} "创建成功"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts [post]
 type CreatePostRequest struct {
 	Title   string `json:"title" binding:"required,min=3,max=200"`
 	Content string `json:"content" binding:"required,min=10"`
@@ -60,6 +79,17 @@ func (c *PostController) CreatePost(ctx *gin.Context) {
 }
 
 // GetPost 获取文章详情
+// @Summary 获取文章详情
+// @Description 根据文章ID获取文章详细信息
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param id path int true "文章ID"
+// @Success 200 {object} map[string]interface{} "文章详情"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 404 {object} map[string]interface{} "文章不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts/{id} [get]
 func (c *PostController) GetPost(ctx *gin.Context) {
 	postIDStr := ctx.Param("id")
 	postID, err := strconv.Atoi(postIDStr)
@@ -93,6 +123,20 @@ func (c *PostController) GetPost(ctx *gin.Context) {
 }
 
 // UpdatePost 更新文章
+// @Summary 更新文章
+// @Description 更新指定文章的内容
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "文章ID"
+// @Param request body CreatePostRequest true "更新后的文章信息"
+// @Success 200 {object} map[string]interface{} "更新成功"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 403 {object} map[string]interface{} "无权操作"
+// @Failure 404 {object} map[string]interface{} "文章不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts/{id} [put]
 func (c *PostController) UpdatePost(ctx *gin.Context) {
 	userID, _ := ctx.Get("userID")
 	postIDStr := ctx.Param("id")
@@ -150,6 +194,19 @@ func (c *PostController) UpdatePost(ctx *gin.Context) {
 }
 
 // DeletePost 删除文章
+// @Summary 删除文章
+// @Description 删除指定文章
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "文章ID"
+// @Success 200 {object} map[string]interface{} "删除成功"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 403 {object} map[string]interface{} "无权操作"
+// @Failure 404 {object} map[string]interface{} "文章不存在"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts/{id} [delete]
 func (c *PostController) DeletePost(ctx *gin.Context) {
 	userID, _ := ctx.Get("userID")
 	postIDStr := ctx.Param("id")
@@ -188,6 +245,14 @@ func (c *PostController) DeletePost(ctx *gin.Context) {
 }
 
 // ListPosts 获取所有文章列表
+// @Summary 获取文章列表
+// @Description 获取所有文章的列表
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "文章列表"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /api/v1/posts [get]
 func (c *PostController) ListPosts(ctx *gin.Context) {
 	posts, err := c.service.ListAllPosts()
 	if err != nil {

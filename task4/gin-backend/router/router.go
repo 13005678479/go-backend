@@ -1,10 +1,13 @@
 package router
 
 import (
+	"blogV2/docs"
 	"blogV2/internal/controllers"
 	"blogV2/middleware"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter(
@@ -13,6 +16,10 @@ func SetupRouter(
 	commentController *controllers.CommentController,
 ) *gin.Engine {
 	r := gin.Default()
+
+	// Swagger 文档路由
+	docs.SwaggerInfo.BasePath = "/api"
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 公开路由
 	public := r.Group("/api")
