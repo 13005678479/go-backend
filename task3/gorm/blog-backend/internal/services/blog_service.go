@@ -2,7 +2,7 @@ package services
 
 import (
 	"blog/internal/models"
-	"blog/pkg/utils"
+	"blog/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -30,10 +30,10 @@ func getUserPostsWithComments(db *gorm.DB, userID uint) ([]models.Post, error) {
 }
 
 // GetMostCommentedPost 查询评论数量最多的文章
-func GetMostCommentedPost(db *gorm.DB) (models.Post, error) {
+func (s *Service) GetMostCommentedPost() (models.Post, error) {
 	var post models.Post
 	// 按评论数量降序排序，取第一条
-	result := db.Preload("User").Preload("Comments").Order("comments_count desc").First(&post)
+	result := s.db.Preload("User").Preload("Comments").Order("comments_count desc").First(&post)
 	if result.Error != nil {
 		return models.Post{}, result.Error
 	}

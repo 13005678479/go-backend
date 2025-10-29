@@ -1,15 +1,37 @@
-package api
+package main
 
 import (
-	"blog/pkg/database"
-	"blog/pkg/utils"
+	"blog/internal/database"
+	"blog/internal/utils"
+	"blog/internal/models"
+	"blog/internal/services"
+	"fmt"
+
+	"gorm.io/gorm"
 )
 
 func main() {
 	utils.Info("应用程序启动")
 
 	// 初始化数据库连接
-	database.InitDB()
+	db := database.InitDB(&models.User{}, &models.Post{}, &models.Comment{})
+
+	// 创建服务实例
+	svc := services.New(db)
+
+	// 示例：查询评论最多的文章
+	post, err := svc.GetMostCommentedPost()
+	if err != nil {
+		utils.Error("查询失败: %v", err)
+	} else {
+		utils.Info("评论最多的文章: %s (评论数: %d)", post.Title, len(post.Comments))
+		fmt.Printf("文章标题: %s
+", post.Title)
+		fmt.Printf("作者: %s
+", post.User.Username)
+		fmt.Printf("评论数量: %d
+", len(post.Comments))
+	}
 
 	// // 示例：插入测试数据（可选，用于验证查询）
 	// testBooks := []models.Book{

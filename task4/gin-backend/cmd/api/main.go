@@ -1,44 +1,48 @@
-package api
+package main
 
 import (
-	"blog/pkg/database"
-	"blog/pkg/utils"
+	"blogV2/config"
+	"blogV2/internal/controllers"
+	"blogV2/internal/services"
+	"blogV2/pkg/database"
+	"blogV2/pkg/utils"
+	"blogV2/router"
+	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	utils.Info("应用程序启动")
 
+	// 加载配置
+	cfg := config.LoadConfig()
+
+	// 设置Gin模式
+	gin.SetMode(cfg.Server.Mode)
+
 	// 初始化数据库连接
-	database.InitDB()
+	db := database.InitDB()
 
-	// // 示例：插入测试数据（可选，用于验证查询）
-	// testBooks := []models.Book{
-	// 	{Title: "Go 编程实战", Author: "张三", Price: 69.90},
-	// 	{Title: "Python 入门", Author: "李四", Price: 45.50},
-	// 	{Title: "Java 高级开发", Author: "王五", Price: 89.00},
-	// }
+	// 自动迁移数据库表
+	database.AutoMigrate(db)
 
-	// utils.Info("开始插入测试数据")
-	// result := db.Create(&testBooks) // 批量插入测试数据
-	// if result.Error != nil {
-	// 	utils.Error("插入测试数据失败: %v", result.Error)
-	// } else {
-	// 	utils.Info("成功插入 %d 条测试数据", len(testBooks))
-	// }
+	// 创建独立的服务实例
+	userService := services.NewUserService(db)
+	postService := services.NewPostService(db)
+	commentService := services.NewCommentService(db)
 
-	// svc := services.New(db)
+	// 创建控制器实例
+	userController := controllers.NewUserController(userService)
+	postController := controllers.NewPostController(postService)
+	commentController := controllers.NewCommentController(commentService)
 
-	// // 执行查询：价格大于 50 元的书籍
-	// expensiveBooks, err := svc.GetBooksPriceGreaterThan50()
-	// if err != nil {
-	// 	utils.Error("查询失败: %v", err)
-	// } else {
-	// 	utils.Info("查询结果：价格大于50元的书籍列表")
-	// 	fmt.Println("价格大于 50列表：")
-	// 	for _, book := range expensiveBooks {
-	// 		fmt.Printf("ID: %d, 书名: %s, 作者: %s, 价格: %.2f\n", book.ID, book.Title, book.Author, book.Price)
-	// 	}
-	// }
+	// 设置路由
+	r := router.SetupRouter(userController, postController, commentController)
 
-	utils.Info("应用程序正常结束")
+	// 启动服务器
+	utils.Info("服务器启动在端口: %s", cfg.Server.Port)
+	if err := r.Run(":" + cfg.Server.Port); err != nil {
+		log.Fatalf("服务器启动失败: %v", err)
+	}
 }

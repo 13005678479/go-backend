@@ -1,7 +1,7 @@
 package database
 
 import (
-	"blog/pkg/utils"
+	"blog/internal/utils"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

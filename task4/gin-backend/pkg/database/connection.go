@@ -1,30 +1,58 @@
 package database
 
 import (
-	"blog/pkg/utils"
+	"blogV2/config"
+	"blogV2/internal/models"
+	"blogV2/pkg/utils"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func InitDB(dst ...interface{}) *gorm.DB {
+var db *gorm.DB
+
+func InitDB() *gorm.DB {
+	if db != nil {
+		return db
+	}
+
 	utils.Info("正在初始化数据库连接...")
 
-	dsn := "root:password@2023@tcp(106.52.240.187:33306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+	// 加载配置
+	cfg := config.LoadConfig()
+
+	// 构建数据库连接字符串
+	dsn := cfg.Database.User + ":" + cfg.Database.Password + 
+		"@tcp(" + cfg.Database.Host + ":" + cfg.Database.Port + ")/" + 
+		cfg.Database.DBName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	
 	utils.Debug("数据库连接字符串: %s", dsn)
 
-	db, err := gorm.Open(mysql.Open(dsn))
+	var err error
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		utils.Error("数据库连接失败: %v", err)
 		panic(err)
 	}
 
 	utils.Info("数据库连接成功")
-
-	// 执行数据库迁移
-	utils.Info("开始执行数据库迁移...")
-	db.AutoMigrate(dst...)
-	utils.Info("数据库迁移完成")
-
 	return db
+}
+
+// AutoMigrate 自动迁移数据库表
+func AutoMigrate(db *gorm.DB) {
+	utils.Info("开始执行数据库迁移...")
+	
+	err := db.AutoMigrate(
+		&models.User{},
+		&models.Post{},
+		&models.Comment{},
+	)
+	
+	if err != nil {
+		utils.Error("数据库迁移失败: %v", err)
+		panic(err)
+	}
+	
+	utils.Info("数据库迁移完成")
 }
